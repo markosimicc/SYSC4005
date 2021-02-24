@@ -1,11 +1,15 @@
+import java.util.ArrayList;
+
 public class Inspector {
     private int id;
     private boolean blocked;
+    private ArrayList<factoryComponent> designatedComponents;
     private factoryComponent currentComponent;
 
-    public Inspector(int ID){
+    public Inspector(int ID,ArrayList<factoryComponent> components){
         this.id = ID;
         blocked = false;
+        designatedComponents = components;
     }
 
     public int getId() {
@@ -16,8 +20,8 @@ public class Inspector {
         this.id = id;
     }
 
-    public void setCurrentComponent(factoryComponent currentComponent) {
-        this.currentComponent = currentComponent;
+    public void setCurrentComponent(factoryComponent component) {
+        currentComponent = component;
         blocked = true;
     }
 
