@@ -1,3 +1,3 @@
 public enum EventTypes {
-    ISPI,INSPE,WSTI,WSTE
+    ISPI,INSPE,INSPB,WSTI,WSTE
 }

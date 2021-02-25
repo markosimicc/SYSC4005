@@ -5,11 +5,13 @@ public class Inspector {
     private boolean blocked;
     private ArrayList<factoryComponent> designatedComponents;
     private factoryComponent currentComponent;
+    private Queue<Queue<factoryComponent>> workstationQueueQueue;
 
     public Inspector(int ID,ArrayList<factoryComponent> components){
         this.id = ID;
         blocked = false;
         designatedComponents = components;
+        workstationQueueQueue = new Queue();
     }
 
     public int getId() {
@@ -24,7 +26,9 @@ public class Inspector {
         currentComponent = component;
         blocked = true;
     }
-
+    public void addToQueue(Queue<factoryComponent> workstationQueue){
+        //Add queue to collection of queues
+    }
     public void setBlocked(boolean blocked) {
         this.blocked = blocked;
     }

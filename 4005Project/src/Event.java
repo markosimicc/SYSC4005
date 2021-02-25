@@ -1,11 +1,13 @@
 public class Event {
-    int eventTime;
-    factoryComponent eventComponent;
+    int eventfTime;
+    int eventsTime;
+    ArrayList<factoryComponent> eventComponents;
     EventTypes eventType;
 
-    public Event (int time,int clock,factoryComponent component,EventTypes type){
-        eventTime = time + clock;
-        eventComponent = component;
+    public Event (int time,int clock,ArrayList<factoryComponent> components,EventTypes type){
+        eventfTime = time + clock;
+        eventsTime = clock;
+        eventComponents = components;
         eventType = type;
     }
 

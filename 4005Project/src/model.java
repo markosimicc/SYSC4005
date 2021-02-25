@@ -1,22 +1,24 @@
 import java.util.Queue;
 
 public class model {
-    //Initializing Simulation Variables
-    public static int productsCreated, workHours, timeWorked;
 
-    //Initializing Queues for workstations
-    private Queue<factoryComponent> W1_1;
-    private Queue<factoryComponent> W2_1;
-    private Queue<factoryComponent> W2_2;
-    private Queue<factoryComponent> W3_1;
-    private Queue<factoryComponent> W3_2;
+    public static int productsCreated, workTime, timeWorked;
+
+
 
 
     public static void Initialize() {
+        //Initializing Simulation Variables
         productsCreated = 0;
-        workHours = 5;
+        workTime= 5;
         timeWorked = 0;
         //Read in all inspector data points as event
+        //Initializing Queues for workstations
+        private Queue<factoryComponent> W1_1;
+        private Queue<factoryComponent> W2_1;
+        private Queue<factoryComponent> W2_2;
+        private Queue<factoryComponent> W3_1;
+        private Queue<factoryComponent> W3_2;
     }
 
     public static boolean checkTime(Event event){
@@ -32,9 +34,9 @@ public class model {
             If Busy
                 create new identical event with time finished of the next closest event in the queue
         If INPE:
-            set timeworked to timefinished
             Have Inspector check it's available queues
                 if queues are full, create new identical event with time finished of the next closest event in the queue
+                set timeworked to timefinished
                 else add a component of same type to the first in the queue of queues (which is then added to the back of queue of queues)
                 Create a WSTI event for the corresponding workstation and add it to the event queue
         If WSTI:
@@ -52,7 +54,8 @@ public class model {
     }
 
     /////////////////////////////
-    //Queue of Created Events
+    //Collection
+    //Initialize
     //While(dayEnded)
     /*
     Find closest event time (if closest time is above workHours, set dayEnded to True)
