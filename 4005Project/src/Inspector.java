@@ -2,16 +2,17 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Queue;
+import java.util.Random;
 
 public class Inspector {
     private int id;
     private boolean blocked;
     private ArrayList<factoryComponent> designatedComponents;
     private factoryComponent currentComponent;
-    private Queue<Queue<factoryComponent>> workstationQueues;
+    private Queue<buffer> workstationQueues;
     private int currentWorkstation;
 
-    public Inspector(int ID,ArrayList<factoryComponent> components,Queue<Queue<factoryComponent>> workstationQueues){
+    public Inspector(int ID,ArrayList<factoryComponent> components,Queue<buffer> workstationQueues){
         this.id = ID;
         blocked = false;
         designatedComponents = components;
@@ -20,11 +21,10 @@ public class Inspector {
     }
     
     public boolean checkFull(){
-    	System.out.println(workstationQueues.size());
     	int numofQueues = workstationQueues.size();
     	int fullQueues = 0;
 		for(int i = 0; i < numofQueues;i++) {
-			Queue<factoryComponent> queue = workstationQueues.poll();
+			buffer queue = workstationQueues.poll();
 			if (queue.size() == 2) {
 				fullQueues = fullQueues + 1;
 			}
@@ -38,10 +38,18 @@ public class Inspector {
 		}
     }
     
-    //public factoryComponent randomComponent() {
-    	//int i = rand(designatedComponents.size() - 1);
-    	//return designtedComponents(i);
-   // }
+
+    public factoryComponent getRandom() {
+    Random random = new Random();
+    if(designatedComponents.size() >= 2) {
+      if (random.nextBoolean()) {
+        return designatedComponents.get(0);
+      } else {
+        return designatedComponents.get(1);
+      }
+    }
+    return designatedComponents.get(0);
+    }
 
     public int getId() {
         return id;
@@ -55,11 +63,11 @@ public class Inspector {
         currentComponent = component;
         blocked = true;
     }
-    public Queue<factoryComponent> addToQueue(factoryComponent comp){
-        for(int i = 0; i < workstationQueues.size(); i++) {
-        	Queue<factoryComponent> workstationqueue = workstationQueues.poll();
-        	System.out.println(workstationqueue.size());
-        	if(workstationqueue.size() < 2) {
+    public buffer addToQueue(factoryComponent comp){
+    	int limit = workstationQueues.size();
+        for(int i = 0; i < limit; i++) {
+        	buffer workstationqueue = workstationQueues.poll();
+        	if(workstationqueue.size() < 2 && comp.getComponentType() == workstationqueue.getID()) {
         		workstationqueue.add(comp);
         		workstationQueues.add(workstationqueue);
         		return workstationqueue;

@@ -11,21 +11,21 @@ public class model {
 	public static Queue<InspectorEvent> inpi, inpe, inspb;
 	public static Queue<WorkStationEvent> wsti, wste;
 	public static workStation w1, w2, w3;
-	public static Queue<factoryComponent> w1_1,w2_1,w2_2,w3_1,w3_2;
+	public static buffer w1_1,w2_1,w2_2,w3_1,w3_2;
 
 	public static void Initialize() {
 		// Initializing Queues for workstations
-		w1_1 = new LinkedList<factoryComponent>();
-		w2_1 = new LinkedList<factoryComponent>();
-		w2_2 = new LinkedList<factoryComponent>();
-		w3_1 = new LinkedList<factoryComponent>();
-		w3_2 = new LinkedList<factoryComponent>();
+		w1_1 = new buffer(1);
+		w2_1 = new buffer(1);
+		w2_2 = new buffer(2);
+		w3_1 = new buffer(1);
+		w3_2 = new buffer(3);
 		// Initializing Queues of the workstation Queues for the inspector class
-		Queue<Queue<factoryComponent>> workstQueuesI1 = new LinkedList<Queue<factoryComponent>>();
+		Queue<buffer> workstQueuesI1 = new LinkedList<buffer>();
 		workstQueuesI1.add(w1_1);
 		workstQueuesI1.add(w2_1);
 		workstQueuesI1.add(w3_1);
-		Queue<Queue<factoryComponent>> workstQueuesI2 = new LinkedList<Queue<factoryComponent>>();
+		Queue<buffer> workstQueuesI2 = new LinkedList<buffer>();
 		workstQueuesI2.add(w2_2);
 		workstQueuesI2.add(w3_2);
 		// Creating the components
@@ -46,7 +46,7 @@ public class model {
 		ins1com.add(cmp1);
 		ArrayList<factoryComponent> ins2com = new ArrayList<factoryComponent>();
 		ins2com.add(cmp2);
-		ins1com.add(cmp3);
+		ins2com.add(cmp3);
 		Inspector ins1 = new Inspector(1, ins1com, workstQueuesI1);
 		Inspector ins2 = new Inspector(1, ins2com, workstQueuesI2);
 		// Create WorkStations
@@ -63,7 +63,7 @@ public class model {
 		w3 = new workStation(3, workstQueuesW3,w3com);
 		// Initializing Simulation Variables
 		productsCreated = 0;
-		workTime = 20;
+		workTime = 120;
 		timeWorked = 0;
 		inspectorBlockCount = 0;
 		timeEnded = false;
@@ -103,7 +103,7 @@ public class model {
 		InspectorEvent E1 = inpi.poll();
 		E1.changeEvent(0, timeWorked, ins1, cmp1, EventTypes.INSPI);
 		InspectorEvent E2 = inpi.poll();
-		E2.changeEvent(0, timeWorked, ins2, cmp2, EventTypes.INSPI);
+		E2.changeEvent(0, timeWorked, ins2, ins2.getRandom(), EventTypes.INSPI);
 		FEL = new ArrayList<Event>();
 		FEL.add(E1);
 		FEL.add(E2);
@@ -122,10 +122,10 @@ public class model {
 		return closestEvent;
 	}
 	
-	public static Event getClosestEvent() {
+	public static Event getClosestEvent(EventTypes eventtype) {
 		Event closestEvent = FEL.get(0);
 		for (int i = 1; i < FEL.size(); i++) {
-			if (FEL.get(i).getEventfTime() < closestEvent.getEventfTime()) {
+			if (FEL.get(i).getEventfTime() < closestEvent.getEventfTime() && closestEvent.getEventType() == eventtype) {
 				closestEvent = FEL.get(i);
 			}
 		}
@@ -154,7 +154,8 @@ public class model {
 			System.out.println("Importing to Inspector!");
 			InspectorEvent e = (InspectorEvent) event;
 			if (e.getInsp().getBlocked()) {
-				Event closestEvent = getClosestEvent();
+				System.out.println("Inspector is Busy!");
+				Event closestEvent = getClosestEvent(EventTypes.INSPE);
 				e.changeEvent(closestEvent.getEventfTime() - closestEvent.getEventsTime(), closestEvent.getEventsTime(),
 						e.getInsp(), e.getFc(), EventTypes.INSPI);
 				event = e;
@@ -173,7 +174,7 @@ public class model {
 			timeWorked = event.getEventfTime();
 			if (e1.getInsp().checkFull()) {
 				System.out.println("Inspectors Buffers are Full!");
-				Event closestEvent = getClosestEvent();
+				Event closestEvent = getClosestEvent(EventTypes.WSTI);
 				inspb.peek().changeEvent(closestEvent.getEventfTime() - closestEvent.getEventsTime(),
 						closestEvent.getEventsTime(), e1.getInsp(), e1.getFc(), EventTypes.INSPB);
 				FEL.add(inspb.poll());
@@ -204,7 +205,7 @@ public class model {
 					break;
 				}
 				inpi.peek().changeEvent(0,
-						timeWorked, e1.getInsp(), e1.getFc(), EventTypes.INSPI);
+						timeWorked, e1.getInsp(), e1.getInsp().getRandom(), EventTypes.INSPI);
 				FEL.add(inpi.poll());
 				e1.getInsp().setBlocked(false);
 				inpe.add((InspectorEvent) event);
@@ -213,9 +214,11 @@ public class model {
 			break;
 
 		case INSPB:
+			System.out.println("Exporting From Inspector!");
 			InspectorEvent e2 = (InspectorEvent) event;
 			if (e2.getInsp().checkFull()) {
-				Event closestEvent = getClosestEvent();
+				System.out.println("Inspectors Buffers are Full!");
+				Event closestEvent = getClosestEvent(EventTypes.WSTI);
 				e2.changeEvent(closestEvent.getEventfTime() - closestEvent.getEventsTime(),
 						closestEvent.getEventsTime(), e2.getInsp(), e2.getFc(), EventTypes.INSPB);
 				event = e2;
@@ -245,7 +248,7 @@ public class model {
 					break;
 				}
 				inpi.peek().changeEvent(0,
-						timeWorked, e2.getInsp(), e2.getFc(), EventTypes.INSPI);
+						timeWorked, e2.getInsp(), e2.getInsp().getRandom(), EventTypes.INSPI);
 				FEL.add(inpi.poll());
 				inspb.add((InspectorEvent) event);
 			}
@@ -253,9 +256,11 @@ public class model {
 			break;
 
 		case WSTI:
+			System.out.println("Importing From Buffers!");
 			WorkStationEvent e3 = (WorkStationEvent) event;
 			if (e3.getWrkst().getisBusy()) {
-				Event closestEvent = getClosestEvent();
+				System.out.println("Workstation is Busy!");
+				Event closestEvent = getClosestEvent(EventTypes.WSTE);
 				e3.changeEvent(closestEvent.getEventfTime() - closestEvent.getEventsTime(), closestEvent.getEventsTime(),
 						e3.getWrkst(), EventTypes.WSTI);
 				event = e3;
@@ -270,6 +275,7 @@ public class model {
 			break;
 
 		case WSTE:
+			System.out.println("Exporting From Buffers!");
 			WorkStationEvent e4 = (WorkStationEvent) event;
 			timeWorked = e4.getEventfTime();
 			productsCreated++;
@@ -281,11 +287,11 @@ public class model {
 	}
 	
 	public static void printBuffers() {
-		System.out.print(w1_1.size() + " ");
-		System.out.print(w2_1.size() + " ");
-		System.out.print(w2_2.size() + " ");
-		System.out.print(w3_1.size() + " ");
-		System.out.print(w3_2.size() + " ");
+		System.out.print(w1_1.toString() + " ");
+		System.out.print(w2_1.toString() + " ");
+		System.out.print(w2_2.toString() + " ");
+		System.out.print(w3_1.toString() + " ");
+		System.out.print(w3_2.toString() + " ");
 		System.out.println();
 	}
 
@@ -296,11 +302,10 @@ public class model {
 			printBuffers();
 			System.out.println(FEL.toString());
 			Event e = retreiveClosestEvent();
-			processEvent(e);
-			
+			processEvent(e);			
 		}
-		System.out.println(productsCreated);
-		System.out.println(inspectorBlockCount);
+		System.out.println("Products Created: " + productsCreated);
+		System.out.println("Number of Blocks: " + inspectorBlockCount);
 		
 	}
 	

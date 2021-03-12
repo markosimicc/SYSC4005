@@ -55,14 +55,17 @@ public class workStation {
 
 	public void removefromQueues(ArrayList<factoryComponent> designatedComponents) {
     	int removedcomponents = 0;
+    	System.out.println("Removing " + removedcomponents + " components");
     	for(int i = 0; i < workstationQueues.size();i++) {
     		for(int j = 0; j < designatedComponents.size();j++) {
+    			System.out.println(removedcomponents + "components removed");
     			if(removedcomponents == designatedComponents.size()) {
     				return;
     			}
     			if(workstationQueues.get(i).contains(designatedComponents.get(j))){
     				workstationQueues.get(i).remove(designatedComponents.get(j));
     				removedcomponents++;
+    				System.out.println("Component Removed");
     		}
     		}
 		}
