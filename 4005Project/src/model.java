@@ -5,21 +5,25 @@ import java.util.Queue;
 
 public class model {
 
-	public static int productsCreated, workTime, timeWorked, inspectorBlockCount;
+	public static int productsCreated, workTime, inspectorBlockCount;
+	public static double timeWorked;
 	public static boolean timeEnded;
 	public static ArrayList<Event> FEL;
 	public static Queue<InspectorEvent> inpi, inpe, inspb;
 	public static Queue<WorkStationEvent> wsti, wste;
 	public static workStation w1, w2, w3;
 	public static buffer w1_1,w2_1,w2_2,w3_1,w3_2;
+	
+	public static ArrayList<Double> i1times,i2_2times,i2_3times,w1times,w2times,w3times;
+	
 
 	public static void Initialize() {
 		// Initializing Queues for workstations
-		w1_1 = new buffer(1);
-		w2_1 = new buffer(1);
-		w2_2 = new buffer(2);
-		w3_1 = new buffer(1);
-		w3_2 = new buffer(3);
+		w1_1 = new buffer(1,1);
+		w2_1 = new buffer(1,2);
+		w2_2 = new buffer(2,3);
+		w3_1 = new buffer(1,4);
+		w3_2 = new buffer(3,5);
 		// Initializing Queues of the workstation Queues for the inspector class
 		Queue<buffer> workstQueuesI1 = new LinkedList<buffer>();
 		workstQueuesI1.add(w1_1);
@@ -47,8 +51,8 @@ public class model {
 		ArrayList<factoryComponent> ins2com = new ArrayList<factoryComponent>();
 		ins2com.add(cmp2);
 		ins2com.add(cmp3);
-		Inspector ins1 = new Inspector(1, ins1com, workstQueuesI1);
-		Inspector ins2 = new Inspector(1, ins2com, workstQueuesI2);
+		Inspector ins1 = new Inspector(1, ins1com, workstQueuesI1,56);
+		Inspector ins2 = new Inspector(2, ins2com, workstQueuesI2,30);
 		// Create WorkStations
 		ArrayList<Queue<factoryComponent>> workstQueuesW1 = new ArrayList<Queue<factoryComponent>>();
 		workstQueuesW1.add(w1_1);
@@ -58,9 +62,9 @@ public class model {
 		ArrayList<Queue<factoryComponent>> workstQueuesW3 = new ArrayList<Queue<factoryComponent>>();
 		workstQueuesW3.add(w3_1);
 		workstQueuesW3.add(w3_2);
-		w1 = new workStation(1, workstQueuesW1,w1com);
-		w2 = new workStation(2, workstQueuesW2,w2com);
-		w3 = new workStation(3, workstQueuesW3,w3com);
+		w1 = new workStation(1, workstQueuesW1,w1com,20);
+		w2 = new workStation(2, workstQueuesW2,w2com,40);
+		w3 = new workStation(3, workstQueuesW3,w3com,42);
 		// Initializing Simulation Variables
 		productsCreated = 0;
 		workTime = 120;
@@ -76,9 +80,11 @@ public class model {
 
 		InspectorEvent INPE1 = new InspectorEvent();
 		InspectorEvent INPE2 = new InspectorEvent();
+		InspectorEvent INPE3 = new InspectorEvent();
 		inpe = new LinkedList<InspectorEvent>();
 		inpe.add(INPE1);
 		inpe.add(INPE2);
+		inpe.add(INPE3);
 
 		InspectorEvent INSPB1 = new InspectorEvent();
 		InspectorEvent INSPB2 = new InspectorEvent();
@@ -91,14 +97,16 @@ public class model {
 		WorkStationEvent WSTI3 = new WorkStationEvent();
 		wsti = new LinkedList<WorkStationEvent>();
 		wsti.add(WSTI1);
-		wsti.add(WSTI1);
+		wsti.add(WSTI2);
+		wsti.add(WSTI3);
 
 		WorkStationEvent WSTE1 = new WorkStationEvent();
 		WorkStationEvent WSTE2 = new WorkStationEvent();
 		WorkStationEvent WSTE3 = new WorkStationEvent();
 		wste = new LinkedList<WorkStationEvent>();
 		wste.add(WSTE1);
-		wste.add(WSTE1);
+		wste.add(WSTE2);
+		wste.add(WSTE3);
 		// Creating initial events
 		InspectorEvent E1 = inpi.poll();
 		E1.changeEvent(0, timeWorked, ins1, cmp1, EventTypes.INSPI);
@@ -107,13 +115,20 @@ public class model {
 		FEL = new ArrayList<Event>();
 		FEL.add(E1);
 		FEL.add(E2);
+		//Initializing ArrayLists of all generated Times
+		i1times = new ArrayList<Double>();
+		i2_2times = new ArrayList<Double>();
+		i2_3times = new ArrayList<Double>();
+		w1times = new ArrayList<Double>();
+		w2times = new ArrayList<Double>();
+		w3times = new ArrayList<Double>();
 	}
 
 	public static Event retreiveClosestEvent() {
 		Event closestEvent = FEL.get(0);
 		int index = 0;
 		for (int i = 1; i < FEL.size(); i++) {
-			if (FEL.get(i).getEventfTime() < closestEvent.getEventfTime()) {
+			if (FEL.get(i).getEventsTime() < closestEvent.getEventsTime()) {
 				closestEvent = FEL.get(i);
 				index = i;
 			}
@@ -125,7 +140,7 @@ public class model {
 	public static Event getClosestEvent(EventTypes eventtype) {
 		Event closestEvent = FEL.get(0);
 		for (int i = 1; i < FEL.size(); i++) {
-			if (FEL.get(i).getEventfTime() < closestEvent.getEventfTime() && closestEvent.getEventType() == eventtype) {
+			if (FEL.get(i).getEventsTime() < closestEvent.getEventsTime() && closestEvent.getEventType() == eventtype) {
 				closestEvent = FEL.get(i);
 			}
 		}
@@ -136,16 +151,19 @@ public class model {
 		return timeWorked >= workTime;
 	}
 
-	public static int findWorkstation(Queue<factoryComponent> queue) {
-		if (w1.getworkstationQueues().contains(queue)) {
+	public static int findWorkstation(buffer workstationqueue) {
+		if (workstationqueue != null) {
+		if (workstationqueue.getbuffNum() == 1) {
 			return 1;
-		} else if (w2.getworkstationQueues().contains(queue)) {
+		} else if (workstationqueue.getbuffNum() == 2 || workstationqueue.getbuffNum() == 3) {
 			return 2;
-		} else if (w3.getworkstationQueues().contains(queue)) {
+		} else if (workstationqueue.getbuffNum() == 4 || workstationqueue.getbuffNum() == 5) {
 			return 3;
 		} else {
 			return 0;
 		}
+		}
+		else return 0;
 	}
 
 	public static void processEvent(Event event) {
@@ -162,7 +180,21 @@ public class model {
 				FEL.add(event);
 			} else {
 				e.getInsp().setBlocked(true);
-				inpe.peek().changeEvent(2, timeWorked, e.getInsp(), e.getFc(), EventTypes.INSPE);
+				e.getInsp().setCurrentComponent(e.getFc());
+				Inspector insp = e.getInsp();
+				double generatedTime = insp.generateInspectorTime();
+				if(insp.getId() == 1) {
+					i1times.add(generatedTime);
+				}
+				else if(insp.getId() == 2) {
+					if(e.getFc().getComponentType() == 2) {
+						i2_2times.add(generatedTime);
+					}
+					else if(e.getFc().getComponentType() == 3) {
+						i2_3times.add(generatedTime);
+					}
+				}
+				inpe.peek().changeEvent(generatedTime, timeWorked, e.getInsp(), e.getFc(), EventTypes.INSPE);
 				FEL.add(inpe.poll());
 				inpi.add((InspectorEvent) event);
 			}
@@ -183,7 +215,9 @@ public class model {
 			}
 
 			else {
+				System.out.println("Adding Component " + e1.getFc());
 				int station = findWorkstation(e1.getInsp().addToQueue(e1.getFc()));
+				System.out.println("Added to queue for workstation " + station);
 				switch (station) {
 				case 1:
 					if (w1.checkForComponents()) {
@@ -226,7 +260,9 @@ public class model {
 			}
 
 			else {
+				System.out.println("Adding Component " + e2.getFc());
 				int station = findWorkstation(e2.getInsp().addToQueue(e2.getFc()));
+				System.out.println("Added to queue for workstation " + station);
 				switch (station) {
 				case 1:
 					if (w1.checkForComponents()) {
@@ -268,7 +304,20 @@ public class model {
 			} else {
 				e3.getWrkst().setBusy(true);
 				e3.getWrkst().removefromQueues(e3.getWrkst().getDesignatedComponents());
-				wste.peek().changeEvent(2, timeWorked, e3.getWrkst(),EventTypes.WSTE);
+				workStation wkstchk = e3.getWrkst();
+				double generatedTime = wkstchk.generateWorkstationTime();
+				switch(wkstchk.getId()) {
+				case(1):
+					w1times.add(generatedTime);
+					break;
+				case(2):
+					w2times.add(generatedTime);
+					break;
+				case(3):
+					w3times.add(generatedTime);
+					break;
+				}
+				wste.peek().changeEvent(generatedTime, timeWorked, e3.getWrkst(),EventTypes.WSTE);
 				FEL.add(wste.poll());
 				wsti.add((WorkStationEvent) event);
 			}
@@ -306,7 +355,12 @@ public class model {
 		}
 		System.out.println("Products Created: " + productsCreated);
 		System.out.println("Number of Blocks: " + inspectorBlockCount);
-		
+		System.out.println("Inspector 1 Generated Times " + i1times);
+		System.out.println("Inspector 2 Generated Times for Component 2" + i2_2times);
+		System.out.println("Inspector 2 Generated Times for Component 3" + i2_3times);
+		System.out.println("Workstation 1 Generated Times " + w1times);
+		System.out.println("Workstation 2 Generated Times " + w2times);
+		System.out.println("Workstation 3 Generated Times " + w3times);
 	}
 	
 

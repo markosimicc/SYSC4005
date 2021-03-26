@@ -11,13 +11,15 @@ public class Inspector {
     private factoryComponent currentComponent;
     private Queue<buffer> workstationQueues;
     private int currentWorkstation;
+    private double initialValue;
 
-    public Inspector(int ID,ArrayList<factoryComponent> components,Queue<buffer> workstationQueues){
+    public Inspector(int ID,ArrayList<factoryComponent> components,Queue<buffer> workstationQueues,double initialValue){
         this.id = ID;
         blocked = false;
         designatedComponents = components;
         this.workstationQueues = workstationQueues;
         currentWorkstation = 0;
+        this.initialValue = initialValue;
     }
     
     public boolean checkFull(){
@@ -70,6 +72,7 @@ public class Inspector {
         	if(workstationqueue.size() < 2 && comp.getComponentType() == workstationqueue.getID()) {
         		workstationqueue.add(comp);
         		workstationQueues.add(workstationqueue);
+        		System.out.println("Added to buffer " + workstationqueue.getbuffNum());
         		return workstationqueue;
         	}
         }
@@ -80,6 +83,58 @@ public class Inspector {
     }
     public boolean getBlocked() {
         return blocked;
+    }
+    
+    public double generateInspectorTime() {
+    	double a;
+    	double c;
+    	double m;
+    	double randomvalue;
+    	double lambda;
+    	double execTime = 0;
+    	double r;
+    	int fc = currentComponent.getComponentType();
+    	switch(id) {
+    		case (1):
+    			a = 23;
+    			c = 22;
+    			m = 78;
+    			randomvalue = (a*initialValue + c) % m;
+    			this.initialValue = randomvalue;
+    			lambda = 0.096545;
+    			r = randomvalue/m;
+    			execTime = (-1/lambda) * Math.log(r);
+    			System.out.println("Random Value " + randomvalue);
+    			System.out.println("Inspector One with execution time " + execTime);
+    		case(2):
+    			if(fc == 2) {
+    				a = 45;
+        			c = 14;
+        			m = 115;
+        			randomvalue = (a*initialValue + c) % m;
+        			this.initialValue = randomvalue;
+        			lambda = 0.064363;
+        			r = randomvalue/m;
+        			execTime = (-1/lambda) * Math.log(r);
+        			System.out.println("Random Value " + randomvalue);
+        			System.out.println("Inspector Two (Comp 2) with execution time " + execTime);
+        			
+    			}
+    			else if(fc == 3) {
+    				a = 5;
+        			c = 14;
+        			m = 105;
+        			randomvalue = (a*initialValue + c) % m;
+        			this.initialValue = randomvalue;
+        			lambda = 0.048467;
+        			r = randomvalue/m;
+        			execTime = (-1/lambda) * Math.log(r);
+        			System.out.println("Random Value " + randomvalue);
+        			System.out.println("Inspector Two (Comp 3) with execution time " + execTime);  			
+    			}
+    		break;
+    	}
+    	return execTime;	
     }
 
 }
