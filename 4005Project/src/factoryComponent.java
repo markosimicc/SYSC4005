@@ -11,4 +11,9 @@ public class factoryComponent {
     public int getComponentType() {
         return componentType;
     }
+    
+    public String toString() {
+		return "" + componentType;
+    	
+    }
 }
