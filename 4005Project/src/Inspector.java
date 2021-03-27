@@ -12,6 +12,7 @@ public class Inspector {
     private Queue<buffer> workstationQueues;
     private int currentWorkstation;
     private double initialValue;
+    private double initialValue2;
 
     public Inspector(int ID,ArrayList<factoryComponent> components,Queue<buffer> workstationQueues,double initialValue){
         this.id = ID;
@@ -20,8 +21,9 @@ public class Inspector {
         this.workstationQueues = workstationQueues;
         currentWorkstation = 0;
         this.initialValue = initialValue;
+        initialValue2 = 0;
     }
-    
+   
     public boolean checkFull(){
     	int numofQueues = workstationQueues.size();
     	int fullQueues = 0;
@@ -31,13 +33,11 @@ public class Inspector {
 				fullQueues = fullQueues + 1;
 			}
 			workstationQueues.add(queue);
+			if(fullQueues == numofQueues) {
+				return true;
+			}
 		}
-		if(fullQueues == numofQueues) {
-			return true;
-		}
-		else {
 		return false;
-		}
     }
     
 
@@ -60,19 +60,32 @@ public class Inspector {
     public void setId(int id) {
         this.id = id;
     }
-
+    
+    public void setInitialValue2(double value) {
+    	initialValue2 = value;
+    }
     public void setCurrentComponent(factoryComponent component) {
         currentComponent = component;
         blocked = true;
     }
+    /**
+     * Method to add a component to the assigned Queues of the inspector
+     * @param comp the component to be added to one of the Queues
+     * @return the Queue that the component was added to if there is space, null if all queues are full.
+     */
     public buffer addToQueue(factoryComponent comp){
+    	//Get the amount of queues available to the inspector
     	int limit = workstationQueues.size();
+    	//for each queue
         for(int i = 0; i < limit; i++) {
+        	//get the queue of components
         	buffer workstationqueue = workstationQueues.poll();
+        	//if the queue of components aren't full (greater than 2) and the queue accepts the component (they have the same id value)
         	if(workstationqueue.size() < 2 && comp.getComponentType() == workstationqueue.getID()) {
+        		//Component is added to the workstation queue
         		workstationqueue.add(comp);
+        		//queue is added to the back of the line 
         		workstationQueues.add(workstationqueue);
-        		System.out.println("Added to buffer " + workstationqueue.getbuffNum());
         		return workstationqueue;
         	}
         }
@@ -86,8 +99,9 @@ public class Inspector {
     }
     
     public double generateInspectorTime() {
-    	double a;
-    	double c;
+    	Random rand = new Random();
+    	double a = rand.nextDouble();
+    	double c = rand.nextDouble();
     	double m;
     	double randomvalue;
     	double lambda;
@@ -96,8 +110,8 @@ public class Inspector {
     	int fc = currentComponent.getComponentType();
     	switch(id) {
     		case (1):
-    			a = 23;
-    			c = 22;
+    			//a = 23;
+    			//c = 22;
     			m = 78;
     			randomvalue = (a*initialValue + c) % m;
     			this.initialValue = randomvalue;
@@ -108,8 +122,8 @@ public class Inspector {
     			System.out.println("Inspector One with execution time " + execTime);
     		case(2):
     			if(fc == 2) {
-    				a = 45;
-        			c = 14;
+    				//a = 45;
+        			//c = 14;
         			m = 115;
         			randomvalue = (a*initialValue + c) % m;
         			this.initialValue = randomvalue;
@@ -121,11 +135,11 @@ public class Inspector {
         			
     			}
     			else if(fc == 3) {
-    				a = 5;
-        			c = 14;
+    				//a = 5;
+        			//c = 14;
         			m = 105;
-        			randomvalue = (a*initialValue + c) % m;
-        			this.initialValue = randomvalue;
+        			randomvalue = (a*initialValue2 + c) % m;
+        			this.initialValue2 = randomvalue;
         			lambda = 0.048467;
         			r = randomvalue/m;
         			execTime = (-1/lambda) * Math.log(r);

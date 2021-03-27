@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.Queue;
+import java.util.Random;
 
 public class workStation {
 	private int id;
@@ -29,7 +30,7 @@ public class workStation {
 	public ArrayList<Queue<factoryComponent>> getworkstationQueues() {
 		return workstationQueues;
 	}
-
+	
 	public boolean checkForComponents() {
 		int numofQueues = workstationQueues.size();
 		System.out.println(numofQueues + " Queues for workstation " + id);
@@ -76,8 +77,9 @@ public class workStation {
 	}
 
 	public double generateWorkstationTime() {
-		double a;
-		double c;
+		Random rand = new Random();
+    	double a = rand.nextDouble();
+    	double c = rand.nextDouble();
 		double m;
 		double randomvalue;
 		double lambda;
@@ -85,8 +87,8 @@ public class workStation {
 		double r;
 		switch (id) {
 		case (1):
-			a = 23;
-			c = 47;
+			//a = 23;
+			//c = 47;
 			m = 29.5;
 			randomvalue = (a * initialValue + c) % m;
 			this.initialValue = randomvalue;
@@ -96,8 +98,8 @@ public class workStation {
 			System.out.println("Workstation One with execution time " + execTime);
 			break;
 		case (2):
-			a = 14;
-			c = 30;
+			//a = 14;
+			//c = 30;
 			m = 58;
 			randomvalue = (a * initialValue + c) % m;
 			this.initialValue = randomvalue;
@@ -107,12 +109,12 @@ public class workStation {
 			System.out.println("Workstation Two with execution time " + execTime);
 			break;
 		case (3):
-			a = 21;
-			c = 32;
+			//a = 21;
+			//c = 32;
 			m = 51;
 			randomvalue = (a * initialValue + c) % m;
 			this.initialValue = randomvalue;
-			lambda = 0.064363;
+			lambda = 0.113693;
 			r = randomvalue/m;
 			execTime = (-1/lambda) * Math.log(r);
 			System.out.println("Workstation Three with execution time " + execTime);
