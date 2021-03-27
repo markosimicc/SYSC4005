@@ -70,7 +70,7 @@ public class model {
 		w3 = new workStation(3, workstQueuesW3,w3com,rand.nextDouble());
 		// Initializing Simulation Variables
 		productsCreated = 0;
-		workTime = 500;
+		workTime = 1000;
 		timeWorked = 0;
 		inspectorBlockCount = 0;
 		timeEnded = false;
@@ -158,6 +158,7 @@ public class model {
 		Event chosenEvent = closestevents.get(rand.nextInt(closestevents.size()));
 		index = FEL.indexOf(chosenEvent);
 		FEL.remove(index);
+		System.out.println("Event Chosen: " + chosenEvent);
 		return chosenEvent;
 	}
 	
@@ -252,24 +253,24 @@ public class model {
 				switch (station) {
 				case 1:
 					if (w1.checkForComponents()) {
-						wsti.peek().changeEvent(1, timeWorked, w1, EventTypes.WSTI);
+						wsti.peek().changeEvent(0, timeWorked, w1, EventTypes.WSTI);
 						FEL.add(wsti.poll());
 					}
 					break;
 				case 2:
 					if (w2.checkForComponents()) {
-						wsti.peek().changeEvent(1, timeWorked, w2, EventTypes.WSTI);
+						wsti.peek().changeEvent(0, timeWorked, w2, EventTypes.WSTI);
 						FEL.add(wsti.poll());
 					}
 					break;
 				case 3:
 					if (w3.checkForComponents()) {
-						wsti.peek().changeEvent(1, timeWorked, w3, EventTypes.WSTI);
+						wsti.peek().changeEvent(0, timeWorked, w3, EventTypes.WSTI);
 						FEL.add(wsti.poll());
 					}
 					break;
 				}
-				inpi.peek().changeEvent(1,
+				inpi.peek().changeEvent(0,
 						timeWorked, e1.getInsp(), e1.getInsp().getRandom(), EventTypes.INSPI);
 				FEL.add(inpi.poll());
 				e1.getInsp().setBlocked(false);
@@ -297,24 +298,24 @@ public class model {
 				switch (station) {
 				case 1:
 					if (w1.checkForComponents()) {
-						wsti.peek().changeEvent(1, timeWorked, w1, EventTypes.WSTI);
+						wsti.peek().changeEvent(0, timeWorked, w1, EventTypes.WSTI);
 						FEL.add(wsti.poll());
 					}
 					break;
 				case 2:
 					if (w2.checkForComponents()) {
-						wsti.peek().changeEvent(1, timeWorked, w2, EventTypes.WSTI);
+						wsti.peek().changeEvent(0, timeWorked, w2, EventTypes.WSTI);
 						FEL.add(wsti.poll());
 					}
 					break;
 				case 3:
 					if (w3.checkForComponents()) {
-						wsti.peek().changeEvent(1, timeWorked, w3, EventTypes.WSTI);
+						wsti.peek().changeEvent(0, timeWorked, w3, EventTypes.WSTI);
 						FEL.add(wsti.poll());
 					}
 					break;
 				}
-				inpi.peek().changeEvent(1,
+				inpi.peek().changeEvent(0,
 						timeWorked, e2.getInsp(), e2.getInsp().getRandom(), EventTypes.INSPI);
 				FEL.add(inpi.poll());
 				inspb.add((InspectorEvent) event);

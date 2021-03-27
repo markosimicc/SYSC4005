@@ -76,6 +76,7 @@ public class Inspector {
     public buffer addToQueue(factoryComponent comp){
     	//Get the amount of queues available to the inspector
     	int limit = workstationQueues.size();
+    	System.out.println("Number of Queues: " + limit);
     	//for each queue
         for(int i = 0; i < limit; i++) {
         	//get the queue of components
@@ -88,6 +89,8 @@ public class Inspector {
         		workstationQueues.add(workstationqueue);
         		return workstationqueue;
         	}
+        	//queue is added to the back of the line 
+        	workstationQueues.add(workstationqueue);
         }
         return null;
     }
