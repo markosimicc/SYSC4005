@@ -2,6 +2,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Queue;
+import java.util.Random;
 
 public class model {
 
@@ -18,6 +19,7 @@ public class model {
 	
 
 	public static void Initialize() {
+		Random rand = new Random();
 		// Initializing Queues for workstations
 		w1_1 = new buffer(1,1);
 		w2_1 = new buffer(1,2);
@@ -51,8 +53,9 @@ public class model {
 		ArrayList<factoryComponent> ins2com = new ArrayList<factoryComponent>();
 		ins2com.add(cmp2);
 		ins2com.add(cmp3);
-		Inspector ins1 = new Inspector(1, ins1com, workstQueuesI1,56);
-		Inspector ins2 = new Inspector(2, ins2com, workstQueuesI2,30);
+		Inspector ins1 = new Inspector(1, ins1com, workstQueuesI1,rand.nextDouble());
+		Inspector ins2 = new Inspector(2, ins2com, workstQueuesI2,rand.nextDouble());
+		ins2.setInitialValue2(rand.nextDouble());
 		// Create WorkStations
 		ArrayList<Queue<factoryComponent>> workstQueuesW1 = new ArrayList<Queue<factoryComponent>>();
 		workstQueuesW1.add(w1_1);
@@ -62,35 +65,45 @@ public class model {
 		ArrayList<Queue<factoryComponent>> workstQueuesW3 = new ArrayList<Queue<factoryComponent>>();
 		workstQueuesW3.add(w3_1);
 		workstQueuesW3.add(w3_2);
-		w1 = new workStation(1, workstQueuesW1,w1com,20);
-		w2 = new workStation(2, workstQueuesW2,w2com,40);
-		w3 = new workStation(3, workstQueuesW3,w3com,42);
+		w1 = new workStation(1, workstQueuesW1,w1com,rand.nextDouble());
+		w2 = new workStation(2, workstQueuesW2,w2com,rand.nextDouble());
+		w3 = new workStation(3, workstQueuesW3,w3com,rand.nextDouble());
 		// Initializing Simulation Variables
 		productsCreated = 0;
-		workTime = 120;
+		workTime = 500;
 		timeWorked = 0;
 		inspectorBlockCount = 0;
 		timeEnded = false;
 		// Creating Collection of Events to use
 		InspectorEvent INPI1 = new InspectorEvent();
 		InspectorEvent INPI2 = new InspectorEvent();
+		InspectorEvent INPI3 = new InspectorEvent();
+		InspectorEvent INPI4 = new InspectorEvent();
 		inpi = new LinkedList<InspectorEvent>();
 		inpi.add(INPI1);
 		inpi.add(INPI2);
+		inpi.add(INPI3);
+		inpi.add(INPI4);
 
 		InspectorEvent INPE1 = new InspectorEvent();
 		InspectorEvent INPE2 = new InspectorEvent();
 		InspectorEvent INPE3 = new InspectorEvent();
+		InspectorEvent INPE4 = new InspectorEvent();
 		inpe = new LinkedList<InspectorEvent>();
 		inpe.add(INPE1);
 		inpe.add(INPE2);
 		inpe.add(INPE3);
+		inpe.add(INPE4);
 
 		InspectorEvent INSPB1 = new InspectorEvent();
 		InspectorEvent INSPB2 = new InspectorEvent();
+		InspectorEvent INSPB3 = new InspectorEvent();
+		InspectorEvent INSPB4 = new InspectorEvent();
 		inspb = new LinkedList<InspectorEvent>();
 		inspb.add(INSPB1);
 		inspb.add(INSPB2);
+		inspb.add(INSPB3);
+		inspb.add(INSPB4);
 
 		WorkStationEvent WSTI1 = new WorkStationEvent();
 		WorkStationEvent WSTI2 = new WorkStationEvent();
@@ -127,14 +140,25 @@ public class model {
 	public static Event retreiveClosestEvent() {
 		Event closestEvent = FEL.get(0);
 		int index = 0;
+		ArrayList<Event> closestevents = new ArrayList<Event>();
+		closestevents.add(closestEvent);
 		for (int i = 1; i < FEL.size(); i++) {
+			if(FEL.get(i).getEventsTime() == closestEvent.getEventsTime()) {
+				closestevents.add(FEL.get(i));
+				System.out.println("Additional closest event found " + closestevents);
+			}
 			if (FEL.get(i).getEventsTime() < closestEvent.getEventsTime()) {
 				closestEvent = FEL.get(i);
-				index = i;
+				closestevents.clear();
+				closestevents.add(closestEvent);
+				System.out.println("New closest event found " + closestevents);
 			}
 		}
+		Random rand = new Random();
+		Event chosenEvent = closestevents.get(rand.nextInt(closestevents.size()));
+		index = FEL.indexOf(chosenEvent);
 		FEL.remove(index);
-		return closestEvent;
+		return chosenEvent;
 	}
 	
 	public static Event getClosestEvent(EventTypes eventtype) {
@@ -151,8 +175,15 @@ public class model {
 		return timeWorked >= workTime;
 	}
 
-	public static int findWorkstation(buffer workstationqueue) {
+	public static int findWorkstation(buffer workstationqueue, int compNum) {
+		if(compNum == 2) {
+			return 2;
+		}
+		if(compNum == 3) {
+			return 3;
+		}
 		if (workstationqueue != null) {
+			System.out.println(workstationqueue.getbuffNum());
 		if (workstationqueue.getbuffNum() == 1) {
 			return 1;
 		} else if (workstationqueue.getbuffNum() == 2 || workstationqueue.getbuffNum() == 3) {
@@ -216,29 +247,29 @@ public class model {
 
 			else {
 				System.out.println("Adding Component " + e1.getFc());
-				int station = findWorkstation(e1.getInsp().addToQueue(e1.getFc()));
+				int station = findWorkstation(e1.getInsp().addToQueue(e1.getFc()),e1.getFc().getComponentType());
 				System.out.println("Added to queue for workstation " + station);
 				switch (station) {
 				case 1:
 					if (w1.checkForComponents()) {
-						wsti.peek().changeEvent(0, timeWorked, w1, EventTypes.WSTI);
+						wsti.peek().changeEvent(1, timeWorked, w1, EventTypes.WSTI);
 						FEL.add(wsti.poll());
 					}
 					break;
 				case 2:
 					if (w2.checkForComponents()) {
-						wsti.peek().changeEvent(0, timeWorked, w2, EventTypes.WSTI);
+						wsti.peek().changeEvent(1, timeWorked, w2, EventTypes.WSTI);
 						FEL.add(wsti.poll());
 					}
 					break;
 				case 3:
 					if (w3.checkForComponents()) {
-						wsti.peek().changeEvent(0, timeWorked, w3, EventTypes.WSTI);
+						wsti.peek().changeEvent(1, timeWorked, w3, EventTypes.WSTI);
 						FEL.add(wsti.poll());
 					}
 					break;
 				}
-				inpi.peek().changeEvent(0,
+				inpi.peek().changeEvent(1,
 						timeWorked, e1.getInsp(), e1.getInsp().getRandom(), EventTypes.INSPI);
 				FEL.add(inpi.poll());
 				e1.getInsp().setBlocked(false);
@@ -261,29 +292,29 @@ public class model {
 
 			else {
 				System.out.println("Adding Component " + e2.getFc());
-				int station = findWorkstation(e2.getInsp().addToQueue(e2.getFc()));
+				int station = findWorkstation(e2.getInsp().addToQueue(e2.getFc()),e2.getFc().getComponentType());
 				System.out.println("Added to queue for workstation " + station);
 				switch (station) {
 				case 1:
 					if (w1.checkForComponents()) {
-						wsti.peek().changeEvent(0, timeWorked, w1, EventTypes.WSTI);
+						wsti.peek().changeEvent(1, timeWorked, w1, EventTypes.WSTI);
 						FEL.add(wsti.poll());
 					}
 					break;
 				case 2:
 					if (w2.checkForComponents()) {
-						wsti.peek().changeEvent(0, timeWorked, w2, EventTypes.WSTI);
+						wsti.peek().changeEvent(1, timeWorked, w2, EventTypes.WSTI);
 						FEL.add(wsti.poll());
 					}
 					break;
 				case 3:
 					if (w3.checkForComponents()) {
-						wsti.peek().changeEvent(0, timeWorked, w3, EventTypes.WSTI);
+						wsti.peek().changeEvent(1, timeWorked, w3, EventTypes.WSTI);
 						FEL.add(wsti.poll());
 					}
 					break;
 				}
-				inpi.peek().changeEvent(0,
+				inpi.peek().changeEvent(1,
 						timeWorked, e2.getInsp(), e2.getInsp().getRandom(), EventTypes.INSPI);
 				FEL.add(inpi.poll());
 				inspb.add((InspectorEvent) event);
