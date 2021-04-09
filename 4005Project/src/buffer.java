@@ -1,10 +1,14 @@
 import java.util.LinkedList;
 import java.util.Queue;
-
+/**
+ * Allows the queue to have a set ID, which determines which component it's a queue for
+ * @author Eric Vincent
+ *
+ */
 public class buffer extends LinkedList<factoryComponent> {
 	int id;
 	int bufferNum;
-	
+
 	buffer(int id,int bufferNum){
 		super();
 		this.id = id;
@@ -22,15 +26,4 @@ public class buffer extends LinkedList<factoryComponent> {
 		return bufferNum;
 	}
 
-
-public static void main(String[] args) {
-	buffer w1_1 = new buffer(1,1);
-	factoryComponent cmp1 = new factoryComponent(1);
-	factoryComponent cmp2 = new factoryComponent(2);
-	factoryComponent cmp3 = new factoryComponent(3);
-	w1_1.add(cmp1);
-	w1_1.setID(1);
-	System.out.println(w1_1.getID());
-	System.out.println(w1_1.toString());
-}
 }

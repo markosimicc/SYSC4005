@@ -1,4 +1,8 @@
-
+/**
+ * Interface that Workstation and Inspector Events extends
+ * @author Eric Vincent
+ *
+ */
 public interface Event {
     
 	 public EventTypes getEventType();

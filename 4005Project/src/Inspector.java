@@ -3,7 +3,11 @@ import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Random;
-
+/**
+ * Inspector is in charge of handling the Inspector events
+ * @author Eric Vincent
+ *
+ */
 public class Inspector {
     private int id;
     private boolean blocked;
@@ -13,7 +17,14 @@ public class Inspector {
     private int currentWorkstation;
     private double initialValue;
     private double initialValue2;
-
+    
+    /**
+     * The standard Constructor for Inspector
+     * @param ID the inspector ID
+     * @param components the components the inspector inspects
+     * @param workstationQueues the queues it adds these components to
+     * @param initialValue the seed of the randomizer
+     */
     public Inspector(int ID,ArrayList<factoryComponent> components,Queue<buffer> workstationQueues,double initialValue){
         this.id = ID;
         blocked = false;
@@ -23,12 +34,16 @@ public class Inspector {
         this.initialValue = initialValue;
         initialValue2 = 0;
     }
-   
+   /**
+    * Checks to see if the inspectors assigned queues are full
+    * @return true if all the queues are full
+    */
     public boolean checkFull(){
     	int numofQueues = workstationQueues.size();
     	int fullQueues = 0;
 		for(int i = 0; i < numofQueues;i++) {
 			buffer queue = workstationQueues.poll();
+			//Max amount of components in a queue is 2, so if its size is 2, that means it's full
 			if (queue.size() == 2) {
 				fullQueues = fullQueues + 1;
 			}
@@ -40,7 +55,10 @@ public class Inspector {
 		return false;
     }
     
-
+    /**
+     * Get a random factory component from an inspectors collection of available components
+     * @return the randomly chosen component
+     */
     public factoryComponent getRandom() {
     Random random = new Random();
     if(designatedComponents.size() >= 2) {
@@ -76,6 +94,7 @@ public class Inspector {
     public buffer addToQueue(factoryComponent comp){
     	//Get the amount of queues available to the inspector
     	int limit = workstationQueues.size();
+    	//System.out.println("Number of Queues: " + limit);
     	//for each queue
         for(int i = 0; i < limit; i++) {
         	//get the queue of components
@@ -88,6 +107,8 @@ public class Inspector {
         		workstationQueues.add(workstationqueue);
         		return workstationqueue;
         	}
+        	//queue is added to the back of the line 
+        	workstationQueues.add(workstationqueue);
         }
         return null;
     }
@@ -97,7 +118,10 @@ public class Inspector {
     public boolean getBlocked() {
         return blocked;
     }
-    
+    /**
+     * Create a random time based on the inspector and the component it is inspecting
+     * @return the randomized time it takes to inspect
+     */
     public double generateInspectorTime() {
     	Random rand = new Random();
     	double a = rand.nextDouble();
@@ -109,42 +133,35 @@ public class Inspector {
     	double r;
     	int fc = currentComponent.getComponentType();
     	switch(id) {
+    	//Inspector 1
     		case (1):
-    			//a = 23;
-    			//c = 22;
     			m = 78;
     			randomvalue = (a*initialValue + c) % m;
     			this.initialValue = randomvalue;
     			lambda = 0.096545;
     			r = randomvalue/m;
     			execTime = (-1/lambda) * Math.log(r);
-    			System.out.println("Random Value " + randomvalue);
-    			System.out.println("Inspector One with execution time " + execTime);
+    	
     		case(2):
+    			//Inspector 2 working on component 2
     			if(fc == 2) {
-    				//a = 45;
-        			//c = 14;
         			m = 115;
         			randomvalue = (a*initialValue + c) % m;
         			this.initialValue = randomvalue;
         			lambda = 0.064363;
         			r = randomvalue/m;
         			execTime = (-1/lambda) * Math.log(r);
-        			System.out.println("Random Value " + randomvalue);
-        			System.out.println("Inspector Two (Comp 2) with execution time " + execTime);
+
         			
     			}
+    			//Inspector 2 working on component 3
     			else if(fc == 3) {
-    				//a = 5;
-        			//c = 14;
         			m = 105;
         			randomvalue = (a*initialValue2 + c) % m;
         			this.initialValue2 = randomvalue;
         			lambda = 0.048467;
         			r = randomvalue/m;
-        			execTime = (-1/lambda) * Math.log(r);
-        			System.out.println("Random Value " + randomvalue);
-        			System.out.println("Inspector Two (Comp 3) with execution time " + execTime);  			
+        			execTime = (-1/lambda) * Math.log(r);			
     			}
     		break;
     	}
