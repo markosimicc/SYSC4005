@@ -1,5 +1,9 @@
 import java.util.ArrayList;
-
+/**
+ * A type of Event, that is focused on the events that the workstation performs
+ * @author Eric Vincent
+ *
+ */
 public class WorkStationEvent implements Event {
 	private double eventfTime;
 	private double eventsTime;
@@ -10,13 +14,26 @@ public class WorkStationEvent implements Event {
 		
 	}
 	
+	/**
+	 * Standard Constructor for Workstation events
+	 * @param time the execution time of the event
+	 * @param clock the time that the event will start
+	 * @param wrkst the workstation that will do the behaviors
+	 * @param type the type of event
+	 */
     public WorkStationEvent (double time,double clock, workStation wrkst, EventTypes type){
         eventfTime = time + clock;
         eventsTime = clock;
         this.wrkst = wrkst;
         eventType = type;
     }
-    
+    /**
+	 * Manipulate the event for a new workstation event
+	 * @param time the execution time of the event
+	 * @param clock the time that the event will start
+	 * @param wrkst the workstation that will do the behaviors
+	 * @param type the type of event
+	 */
     public void changeEvent(double time,double clock, workStation newwrkst, EventTypes type){
         eventfTime = time + clock;
         eventsTime = clock;

@@ -1,3 +1,8 @@
+/**
+ * The components that the inspectors inspect, and that the workstations retreive to create their parts
+ * @author Eric Vincent
+ *
+ */
 public class factoryComponent {
     private int componentType;
     public factoryComponent(int type){
